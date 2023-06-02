@@ -1,0 +1,78 @@
+# Build using docfx and push to S3 with Cloudfront invalidation
+name: build-docfx-push-s3-internal-test
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+  # Run automatically on direct pushes to test branches
+  push:
+    branches:
+      - 'test/**'
+
+  # Run automatically on closed PR; see conditional IF below to confirm that this was a closed PR
+  pull_request:
+    branches: 
+      - 'test/**'
+    types:
+      - closed
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build-docfx-push-s3:
+
+    # set job permissions, needed for AWS credential config
+    permissions:
+      id-token: write
+      contents: write
+
+    # gasp is Intel internal GH runner system
+    # runs-on: gasp
+    
+    # Run on merged PR
+    # if: github.event.pull_request.merged == true
+
+    # can use self-hosted for testing until everything works on gasp
+    runs-on: [ self-hosted ]
+
+    # Looks like we need to specify the environment in the workflow, and I dont see a way to make this conditional yet.  
+    # May need separate workflows for each environment.
+    environment: INT_TEST
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v3
+      
+      - name: Install DocFX
+        run: |
+          wget https://github.com/dotnet/docfx/releases/download/v2.66.2/docfx-linux-x64-v2.66.2.zip
+          unzip docfx-linux-x64-v2.66.2.zip
+
+      - name: Build documentation web content
+        run: ./docfx docs/docfx_no_pdf.json
+
+      - name: Configure AWS credentials with internal test acct
+        uses: aws-actions/configure-aws-credentials@main
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION }}
+          role-duration-seconds: 1200
+
+      
+      # The Github Actions envrionment settings should determine which variables we're using 
+      # based on the branch name pattern.
+      # TODO: Need to work out multiple assume-role actions for external pushes.  Must be conditional.
+
+      - name: Push documentation web content to S3 - Internal
+        run: aws s3 sync docs/_site/ s3://${{ vars.AWS_S3_BUCKET }}/main/ --delete
+
+        # Commenting condition for testing
+        # if: startsWith(github.ref, 'refs/heads/test/')
+
+      - name: Create CloudFront Invalidation
+        run: aws cloudfront create-invalidation --distribution-id ${{ vars.DISTRIBUTION_ID }} --paths "/*"
+
+      

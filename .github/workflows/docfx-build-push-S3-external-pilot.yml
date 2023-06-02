@@ -1,0 +1,80 @@
+# Build using docfx and push to S3 with Cloudfront invalidation
+name: build-docfx-push-s3-external-pilot
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+  # Run automatically on direct pushes to pilot branches
+  #push:
+  #  branches:
+  #    - 'pilot/**'
+
+  # Run automatically on closed PR; see conditional IF below to confirm that this was a closed PR
+  #pull_request:
+  #  branches: 
+  #    - 'pilot/**'
+  #  types:
+  #    - closed
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  build-docfx-push-s3:
+
+    # set job permissions, needed for AWS credential config
+    permissions:
+      id-token: write
+      contents: write
+
+    # gasp is Intel internal GH runner system
+    # runs-on: gasp
+
+    # Run on merged PR
+    # if: github.event.pull_request.merged == true
+
+    # can use self-hosted for testing until everything works on gasp
+    runs-on: [ self-hosted ]
+
+    # Looks like we need to specify the environment in the workflow, and I dont see a way to make this conditional yet.  
+    # May need separate workflows for each environment.
+    environment: EXT_PILOT
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v3
+      
+      - name: Install DocFX
+        run: |
+          wget https://github.com/dotnet/docfx/releases/download/v2.63.1/docfx-linux-x64-v2.63.1.zip
+          unzip docfx-linux-x64-v2.63.1.zip
+
+      - name: Build documentation web content
+        run: ./docfx docs/docfx_no_pdf.json
+
+      - name: Configure AWS credentials with internal role
+        uses: aws-actions/configure-aws-credentials@main
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+      
+      - name: AWS assume internal role
+        uses: aws-actions/configure-aws-credentials@main
+        with:
+          role-arn: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: AWS assume external pilot role
+        uses: aws-actions/configure-aws-credentials@main
+        with:
+          role-arn: ${{ secrets.EXTERNAL_AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+
+      - name: Push documentation web content to S3 - Pilot
+        run: aws s3 sync docs/_site/ s3://${{ secrets.AWS_S3_BUCKET }}/main/ --delete
+        if: startsWith(github.ref, 'refs/heads/pilot/')
+
+      - name: Create CloudFront Invalidation
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.DISTRIBUTION_ID }} --paths "/*"
+      

@@ -1,0 +1,43 @@
+{
+  "build": {
+    "content": [
+      {
+        "files": [
+          "articles/**.md",
+          "articles/toc.yml",
+          "toc.yml",
+          "index.md",
+          "restapi/**",
+          "restapi/toc.yml"
+        ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "articles/media/**"
+        ]
+      }
+    ],
+    "dest": "_site",
+    "globalMetadata":{
+      "_appTitle": "Project Amber",
+      "_appLogoPath": "logo.svg",
+      "_appFaviconPath": "favicon.ico",
+      "_enableSearch": "true",
+      "_enableNewTab": "true"
+    },
+    "globalMetadataFiles": [],
+    "fileMetadataFiles": [],
+    "template": [
+      "default",
+      "templates/material"
+    ],
+    "postProcessors": ["ExtractSearchIndex"],
+    "markdownEngineName": "markdig",
+    "noLangKeyword": false,
+    "keepFileLink": false,
+    "cleanupCacheHistory": false,
+    "disableGitFeatures": true
+  }
+}  

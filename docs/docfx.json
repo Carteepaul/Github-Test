@@ -1,0 +1,88 @@
+{
+  "build": {
+    "content": [
+      {
+        "files": [
+          "articles/**.md",
+          "articles/toc.yml",
+          "toc.yml",
+          "index.md",
+          "restapi/**",
+          "restapi/toc.yml"
+        ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "articles/media/**"
+        ]
+      }
+    ],
+    "dest": "_site",
+    "globalMetadata":{
+      "_appTitle": "Project Amber",   
+      "_appLogoPath": "logo.svg",
+      "_appFaviconPath": "favicon.ico",
+      "_enableSearch": "true",
+      "_enableNewTab": true
+    },
+    "globalMetadataFiles": [],
+    "fileMetadataFiles": [],
+    "template": [
+      "default",
+      "templates/material"
+    ],
+    "postProcessors": ["ExtractSearchIndex"],
+    "markdownEngineName": "markdig",
+    "noLangKeyword": false,
+    "keepFileLink": false,
+    "cleanupCacheHistory": false,
+    "disableGitFeatures": true
+  },
+  "pdf": {
+    "content":[
+      {
+        "files": [
+          "articles/**.md",
+          "articles/toc.yml",
+          "toc.yml",
+          "index.md",
+          "restapi/**.md",
+          "restapi/toc.yml"
+        ],
+        "exclude": [
+          "**/bin/**",
+          "**/obj/**",
+          "_site_pdf/**",
+          "_site/**"
+        ]
+      },
+      {
+        "files": "pdf/toc.yml"
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "articles/media/**"
+        ],
+        "exclude": [
+          "**/bin/**",
+          "**/obj/**",
+          "_site_pdf/**",
+          "_site/**"
+        ]
+      }
+    ],
+    "wkhtmltopdf":{
+      "additionalArguments": "--enable-local-file-access"
+    },
+    "dest": "_site_pdf",
+    "name": "ProjectAmberDocs",
+    "excludeDefaultToc": true,
+    "coverTitle": "Project Amber Documentation"
+
+  
+  }
+}  

@@ -1,0 +1,59 @@
+# This is a basic workflow to help you get started with Actions
+
+name: DocFX-Autobuild-NoPDF
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+#  push:
+#    branches: [ "main" ]
+#  pull_request:
+#    branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  WEBSERVER_BASE_PATH: /var/www/html
+  DOCFX_PATH: /usr/local/bin/docfx
+  EXPIRE_DAYS: 30
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build-docfx:
+    # The type of runner that the job will run on
+    runs-on: [ self-hosted ]
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out repository under $GITHUB_WORKSPACE
+      - uses: actions/checkout@v3
+
+      # Run DocFX build
+      - name: Execute docfx build
+        run: mono $DOCFX_PATH/docfx.exe docs/docfx_no_pdf.json
+
+      # Copy site static content to web directory based on branch name (main or PR branch name)
+      - name: Push site content to apache
+        run: |
+          rm -rf $WEBSERVER_BASE_PATH/${{ github.ref_name }}
+          mkdir -p $WEBSERVER_BASE_PATH/${{ github.ref_name }}
+          cp -r docs/_site/* $WEBSERVER_BASE_PATH/${{ github.ref_name }}
+
+      # Cleanup
+      - name: 'Cleanup build folder'
+        run: |
+          ls -la ./
+          rm -rf ./* || true
+          rm -rf ./.??* || true
+          ls -la ./
+
+      # Add scheduled task to delete web folder if not main?  Or if not modified after specified time?
+  cleanup-old-builds:
+    
+    runs-on: [ self-hosted ]
+
+    steps:
+      - name: Delete static web export directories older than $EXPIRE_DAYS
+        run: find $WEBSERVER_BASE_PATH -type d -mtime +$EXPIRE_DAYS -exec rm -rf {} \;

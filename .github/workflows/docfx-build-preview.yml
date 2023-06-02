@@ -1,0 +1,65 @@
+# This is a basic workflow to help you get started with Actions
+
+name: DocFX-Autobuild-NoPDF
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "test" branches
+  push:
+    branches:
+      - 'test/**'
+
+  # Run automatically on PR
+  pull_request:
+    branches: 
+      - 'test/**'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  WEBSERVER_BASE_PATH: /var/www/html
+  # DOCFX_PATH: /usr/local/bin/docfx
+  EXPIRE_DAYS: 30
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build-docfx-push-preview:
+
+    # gasp is Intel internal GH runner system
+    # runs-on: gasp
+
+    # can use self-hosted for testing until everything works on gasp
+    runs-on: [ self-hosted ]
+
+    # No environment secrets required for now
+    # environment: INT_TEST
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v3
+      
+      - name: Install DocFX
+        run: |
+          wget https://github.com/dotnet/docfx/releases/download/v2.63.1/docfx-linux-x64-v2.63.1.zip
+          unzip docfx-linux-x64-v2.63.1.zip
+
+      - name: Build documentation web content
+        run: ./docfx docs/docfx_no_pdf.json
+
+      # Copy site static content to web directory based on branch name (main or PR branch name)
+      - name: Push site content to apache
+        run: |
+          rm -rf $WEBSERVER_BASE_PATH/${{ github.ref_name }}
+          mkdir -p $WEBSERVER_BASE_PATH/${{ github.ref_name }}
+          cp -r docs/_site/* $WEBSERVER_BASE_PATH/${{ github.ref_name }}
+
+      # Add scheduled task to delete web folder if not main?  Or if not modified after specified time?
+  cleanup-old-builds:
+    
+    runs-on: [ self-hosted ]
+
+    steps:
+      - name: Delete static web export directories older than $EXPIRE_DAYS
+        run: find $WEBSERVER_BASE_PATH -type d -mtime +$EXPIRE_DAYS -exec rm -rf {} \;

@@ -1,0 +1,9 @@
+# Folders
+**/obj/**
+**/_site/**
+**/_site_pdf/**
+**/.vscode/**
+**/_exported_templates/**
+
+# Files
+/**/*.txt

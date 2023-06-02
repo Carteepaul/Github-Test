@@ -1,0 +1,129 @@
+# Articles TOC
+# Last update: 05/18/2023 for TOC reorg.
+items:
+- name: Overview
+  href: introduction.md
+- name: Quickstart
+  homepage: quickstart-landing.md
+  items:
+    - name: Plan and prepare
+      href: concept-plan-prepare.md
+    - name: Subscriptions
+      href: howto-manage-subscriptions.md 
+    - name: Create an API key
+      href: tutorial-api-key.md
+    - name: Migrating from Microsoft Azure Attestation
+      href: quickstart-maa-adapter.md 
+- name: Tutorials and examples
+  homepage: tutorial-landing.md
+  items:
+    - name: CI/CD Integration
+      href: tutorial-cicd.md
+    - name: Key Release Samples
+      href: tutorial-key-release.md
+- name: How-to workflows
+  homepage: howto-management-overview.md
+  items:
+    - name: Portal User Management
+      href: howto-manage-users.md
+    - name: Admin API keys
+      href: howto-manage-admin-api-keys.md
+    - name: Reports and metrics
+      href: howto-reports-metrics.md
+    - name: Billing
+      href: howto-billing.md
+    - name: Attestation API keys
+      href: howto-manage-api-keys.md
+    - name: Policies 
+      href: howto-manage-attestation-policies.md
+    - name: Tagging Attestation API Keys
+      href: howto-manage-tags.md
+- name: Concepts
+  homepage: concept-overview.md
+  items:
+    - name: Attestation
+      href: concept-attestation-overview.md
+    - name: Policies
+      homepage: concept-policies.md
+      items: 
+        - name: Appraisal policies
+          href: concept-appraisal-policies.md 
+        - name: Policy grammar
+          href: concept-policy-grammar.md 
+        - name: Claims
+          href: concept-claims.md
+        - name: Token customization policies and custom claims
+          href: concept-token-customization.md
+    - name: Integration client
+      href: concept-client-integration.md
+    - name: Microsoft Attestation Adapter Service
+      href: concept-maa-adapter.md
+    - name: Use cases
+      href: concept-usecases-overview.md
+    - name: User roles and API keys
+      href: concept-user-roles-and-api-keys.md
+    - name: Trusted Execution Environments
+      homepage: concept-tees-overview.md
+      items:
+        - name: Intel SGX
+          href: concept-intel-sgx.md
+        - name: Intel TDX
+          href: concept-intel-tdx.md
+    - name: Trust Model 
+      href: concept-trust-model.md
+    - name: Developing an access broker
+      href: concept-access-broker.md
+    - name: Where to get it
+      href: where-to.md
+- name: Resources and learning
+  homepage: resources-landing.md
+  items:
+    - name: REST API
+      href: ../restapi/
+      topicHref: ../restapi/restapi-overview.md
+    - name: Tenant Administration CLI
+      homepage: cli-examples.md
+      items:
+        - name: Installation
+          href: cli-install.md
+        - name: Policy management
+          href: cli-policy-commands.md
+        - name: Signed policy management
+          href: cli-signed-policy-commands.md
+        - name: Service management
+          href: cli-service-commands.md
+        - name: Subscription management
+          href: cli-subscription-commands.md
+        - name: User management
+          href: cli-user-commands.md
+        - name: Integration reference
+- name: Client integration reference
+  homepage: integrate-overview.md
+  items:
+    - name: Client libraries
+      homepage: integrate-go-client.md
+      items:
+      - name: Go Client integration
+        href: integrate-go-client.md
+      - name: Go-SGX adapter
+        href: integrate-go-sgx.md
+      - name: Go-TDX adapter
+        href: integrate-go-tdx.md
+    - name: Command-line integration
+      homepage: integrate-go-tdx-cli.md
+      items:
+        - name: Intel TDX CLI
+          href: integrate-go-tdx-cli.md
+    - name: MAA adapter service
+      href: integrate-maa.md
+    - name: Gramine integration (Intel SGX)
+      href: integrate-gramine.md
+    - name: Troubleshooting
+      href: troubleshooting.md
+    - name: Frequently asked questions
+      href: faq.md
+- name: Glossary
+  href: glossary.md
+- name: What's new
+  href: whats-new.md
+
